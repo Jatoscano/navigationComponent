@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -17,6 +18,7 @@ import com.torres.myapplication.ui.activities.DetailItemActivity
 import com.torres.myapplication.ui.adapters.NewsAdapter
 import com.torres.myapplication.ui.entities.NewsDataUI
 import com.torres.myapplication.ui.modals.ModalBottomSheet
+import com.torres.myapplication.ui.viewmodel.ListarNewVM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -30,6 +32,7 @@ class ListarNews : Fragment() {
     private lateinit var newsAdapter: NewsAdapter
     private lateinit var modalBottomSheet: ModalBottomSheet
 
+    private val listarNewsVM: ListarNewVM by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -50,6 +53,7 @@ class ListarNews : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         initVaribles()
+        //initObservers()
     }
 
     private fun initVaribles() {
@@ -77,6 +81,30 @@ class ListarNews : Fragment() {
         }
     }
 
+    //Flows
+    private fun initData() {
+        binding.pgbarLoadData.visibility = View.VISIBLE
+
+
+            lifecycleScope.launch(Dispatchers.Main) {
+                listarNewsVM.initData()
+                binding.pgbarLoadData.visibility = View.INVISIBLE
+            }
+
+    }
+
+    private fun initObservers(){
+        listarNewsVM.error.observe(viewLifecycleOwner){
+            Snackbar.make(binding.refreshRV, it, Snackbar.LENGTH_LONG).show()
+        }
+
+        listarNewsVM.listNesData.observe(viewLifecycleOwner){
+            newsAdapter.itemList = items
+            newsAdapter.notifyDataSetChanged()
+        }
+    }
+    /*
+    //Original
     private fun initData() {
         binding.pgbarLoadData.visibility = View.VISIBLE
 
@@ -99,6 +127,7 @@ class ListarNews : Fragment() {
             }
         }
     }
+     */
 
 
     private fun descriptionItem(news: NewsDataUI) {

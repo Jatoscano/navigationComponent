@@ -30,16 +30,20 @@ class ModificarFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.txtHola.text = args.name
-        initLiateners()
+        initListeners()
+        initObservers()
+    }
+
+    private fun initObservers(){
+        modificarFragmentVM.cLive.observe(viewLifecycleOwner){
+            binding.txtHola.text = it.toString()
+        }
     }
 
 
-    private fun initLiateners(){
+    private fun initListeners(){
         binding.btnContar.setOnClickListener {
             modificarFragmentVM.funListeners()
-        }
-        modificarFragmentVM.cLive.observe(viewLifecycleOwner){
-            binding.txtHola.text = it.toString()
         }
     }
 
