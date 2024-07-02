@@ -53,6 +53,13 @@
             android:layout_width="match_parent"
             android:layout_height="62dp"
             android:text="Guardar" />
+
+        <Button
+            android:id="@+id/btn_back"
+            style="@style/ButtonBase"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:text="Regresar"/>
     </LinearLayout>
 
     <include
