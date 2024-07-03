@@ -6,22 +6,28 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.torres.myapplication.logic.usercases.login.CreateUserWithNameAndPassword
+import com.torres.myapplication.ui.core.UIStates
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 
 class RegistrarFragmentVM: ViewModel() {
 
-    var userSaved = MutableLiveData<Boolean>()
-    suspend fun saveUser(name: String, password: String, context: Context){
+    var uiState = MutableLiveData<UIStates>()
+    fun saveUser(name: String, password: String, context: Context){
 
-        val user = CreateUserWithNameAndPassword(context).invoke(name, password)
-        user.apply {
-            launchIn(scope = viewModelScope)
-            collect{
-                userSaved.postValue(it)
-            }
+        viewModelScope.launch(){
+
+            uiState.postValue(UIStates.Loading(true))
+
+            CreateUserWithNameAndPassword(context).invoke(name, password)
+                .collect{
+                    it.onSuccess { uiState.postValue(UIStates.Success(it)) }
+                    it.onFailure { uiState.postValue(UIStates.Error(it.message.toString())) }
+                }
+            delay(3000)
+            uiState.postValue(UIStates.Loading(false))
         }
-        userSaved.postValue(true)
     }
 }

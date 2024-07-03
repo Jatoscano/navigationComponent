@@ -6,19 +6,21 @@ import com.torres.myapplication.data.local.repository.DataBaseRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class CreateUserWithNameAndPassword(private val context: Context) {
 
-    fun invoke(name: String, password: String) = flow<Boolean>{
+    fun invoke(name: String, password: String) = flow{
 
-            val con = DataBaseRepository.getDBConnection(context)
-            con.getUserDao().saveUser(listOf(UsersDB(0, name, password)))
-            emit(true)
+        kotlinx.coroutines.delay(3000)
+        DataBaseRepository.getDBConnection(context)
+            .getUserDao().saveUser(listOf(UsersDB(0, name, password)))
+            emit(Result.success(true))
 
-    }.catch {
-        emit(false)
-    }
+    }.catch {ex ->
+        emit(Result.failure(ex))
+    }.flowOn(Dispatchers.IO)
 }
