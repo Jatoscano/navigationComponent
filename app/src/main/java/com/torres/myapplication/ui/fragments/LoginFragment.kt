@@ -11,6 +11,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -18,7 +19,10 @@ import com.torres.myapplication.R
 import com.torres.myapplication.databinding.FragmentLoginBinding
 import com.torres.myapplication.logic.usercases.login.LoginUserpasswordUserCase
 import com.torres.myapplication.ui.activities.ConstrainActivity
+import com.torres.myapplication.ui.activities.MainActivity
+import com.torres.myapplication.ui.core.ManageUIState
 import com.torres.myapplication.ui.core.MyApplication
+import com.torres.myapplication.ui.viewmodel.login.LoginFragmentVM
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +35,9 @@ class LoginFragment : Fragment() {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var biometricManager: BiometricManager
+    private lateinit var manageUIState: ManageUIState
+
+    private val loginFragmentVM: LoginFragmentVM by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +53,7 @@ class LoginFragment : Fragment() {
 
         initVariables()
         initListeners()
+        initObervables()
 
     }
 
@@ -153,6 +161,17 @@ class LoginFragment : Fragment() {
 
         binding.imgFinger.setOnClickListener {
             initBiometric()
+        }
+    }
+
+    private fun initObervables(){
+        loginFragmentVM.uiState.observe(viewLifecycleOwner){
+            state -> manageUIState.invoke(state)
+        }
+
+        loginFragmentVM.idUser.observe(viewLifecycleOwner){
+            id -> startActivity(Intent(requireActivity(), MainActivity::class.java))
+            requireActivity().finish()
         }
     }
 }
